@@ -25,6 +25,8 @@
 #if defined(LINUX) || defined(MACOSX) || defined(IOS)
 #include <sys/types.h>
 #include <sys/stat.h>
+#elif defined(WINCE)
+#include <io.h>
 #elif defined(WIN32)
 #include <direct.h>
 #endif
@@ -2353,7 +2355,7 @@ int ONScripter::gettagCommand()
 
     int n = script_h.enc.getBytes(buf[0]);
     unsigned short unicode1 = script_h.enc.getUTF16(buf);
-    unsigned short unicode2 = script_h.enc.getUTF16("¡Ú", Encoding::CODE_CP932);
+    unsigned short unicode2 = script_h.enc.getUTF16("ï¿½ï¿½", Encoding::CODE_CP932);
     if (buf[0] == '[')
         buf++;
     else if (zenkakko_flag && unicode1 == unicode2)
@@ -2378,7 +2380,7 @@ int ONScripter::gettagCommand()
             if (buf){
                 const char *buf_start = buf;
                 unicode1 = script_h.enc.getUTF16(buf);
-                unicode2 = script_h.enc.getUTF16("¡Û", Encoding::CODE_CP932);
+                unicode2 = script_h.enc.getUTF16("ï¿½ï¿½", Encoding::CODE_CP932);
                 while(*buf != '/' && *buf != 0 && *buf != ']' && 
                       (!zenkakko_flag || unicode1 != unicode2)){
                     buf += script_h.enc.getBytes(buf[0]);
@@ -2400,7 +2402,7 @@ int ONScripter::gettagCommand()
 
     n = script_h.enc.getBytes(pretext_buf[0]);
     unicode1 = script_h.enc.getUTF16(pretext_buf);
-    unicode2 = script_h.enc.getUTF16("¡Û", Encoding::CODE_CP932);
+    unicode2 = script_h.enc.getUTF16("ï¿½ï¿½", Encoding::CODE_CP932);
     if (pretext_buf[0] == ']')
         pretext_buf++;
     else if (zenkakko_flag && unicode1 == unicode2)
