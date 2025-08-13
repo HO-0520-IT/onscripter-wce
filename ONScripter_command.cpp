@@ -25,6 +25,8 @@
 #if defined(LINUX) || defined(MACOSX) || defined(IOS)
 #include <sys/types.h>
 #include <sys/stat.h>
+#elif defined(WINCE)
+#include <io.h>
 #elif defined(WIN32)
 #include <direct.h>
 #endif
