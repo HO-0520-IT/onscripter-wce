@@ -62,6 +62,11 @@ extern "C" int mkdir_ons(const char* pathname, mode_t mode);
 #define RELATIVEPATHLENGTH 0
 #endif
 
+#if defined(WINCE)
+extern "C" FILE* fopen_ons(const char* str, const char* mode);
+#define fopen fopen_ons
+#endif
+
 struct BaseReader {
     enum {
         NO_COMPRESSION = 0,

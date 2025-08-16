@@ -7,7 +7,7 @@ PDA_WIDTH = 640
 
 PREF = /usr/arm-mingw32ce
 
-INCS = `$(PREF)/bin/sdl-config --cflags`
+INCS = `$(PREF)/bin/sdl-config --cflags` `$(PREF)/bin/freetype-config --cflags`
 
 LIBS = -static `$(PREF)/bin/sdl-config --libs` -lSDL_ttf -lSDL_image -lSDL_mixer -lSDL -lfreetype -ljpeg -lpng -lz -lbz2 -lmad
 

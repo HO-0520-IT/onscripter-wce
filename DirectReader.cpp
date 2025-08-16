@@ -310,7 +310,7 @@ FILE* DirectReader::getFileHandle(const char* file_name, int& compression_type, 
         if ((unsigned char)capital_name[i] > 0x80) i++;
     }
 
-#if defined(UTF8_FILESYSTEM)
+#if defined(UTF8_FILESYSTEM) || defined(WINCE)
     convertFromSJISToUTF8(capital_name_tmp, capital_name);
     strcpy(capital_name, capital_name_tmp);
     len = strlen(capital_name);
