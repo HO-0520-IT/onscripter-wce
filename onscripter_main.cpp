@@ -77,6 +77,10 @@ int SetupCallbacks(void)
 }
 #endif
 
+#if defined(WINCE)
+#include <windows.h>
+#endif
+
 void optionHelp()
 {
     printf("Usage: onscripter [option ...]\n");
@@ -364,6 +368,19 @@ extern "C" void playVideoIOS(const char* filename, bool click_flag, bool loop_fl
 }
 #endif
 
+#if defined(WINCE)
+#undef fopen
+FILE* fopen_ons(const char* path, const char* mode)
+{
+    wchar_t wpath[256];
+    wchar_t wmode[16];
+
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, sizeof(wpath));
+    MultiByteToWideChar(CP_UTF8, 0, mode, -1, wmode, sizeof(wmode));
+    return _wfopen(wpath, wmode);
+}
+#endif
+
 #if defined(QWS) || defined(ANDROID)
 int SDL_main(int argc, char** argv)
 #elif defined(PSP)
@@ -379,15 +396,38 @@ int main(int argc, char** argv)
     ons.enableButtonShortCut();
     SetupCallbacks();
 #elif defined(WINCE)
-    char currentDir[256];
-    strcpy(currentDir, argv[0]);
-    char* cptr = currentDir;
-    int i, len = strlen(currentDir);
-    for (i = len - 1; i > 0; i--) {
-        if (cptr[i] == '\\' || cptr[i] == '/')
-            break;
+    wchar_t modulePathW[MAX_PATH];
+    if (GetModuleFileNameW(NULL, modulePathW, MAX_PATH) == 0) {
+        fprintf(stderr, "GetModuleFileNameW failed with error: %lu\n", GetLastError());
+        return 1;
     }
-    cptr[i] = '\0';
+
+    char modulePathA[MAX_PATH];
+    if (WideCharToMultiByte(CP_UTF8, 0, modulePathW, -1, modulePathA, sizeof(modulePathA), NULL, NULL) == 0) {
+        fprintf(stderr, "WideCharToMultiByte failed with error: %lu\n", GetLastError());
+        return 1;
+    }
+
+    char* lastSeparator = strrchr(modulePathA, '\\');
+    char* lastForwardSlash = strrchr(modulePathA, '/');
+
+    if (lastForwardSlash > lastSeparator) {
+        lastSeparator = lastForwardSlash;
+    }
+
+    if (lastSeparator != NULL) {
+        *lastSeparator = '\0';
+    }
+
+    char currentDir[256];
+    strncpy(currentDir, modulePathA, sizeof(currentDir) - 1);
+    currentDir[sizeof(currentDir) - 1] = '\0';
+
+    for (int i = 0; currentDir[i] != '\0'; i++) {
+        if (currentDir[i] == '\\') {
+            currentDir[i] = '/';
+        }
+    }
     ons.setArchivePath(currentDir);
     ons.disableRescale();
     ons.enableButtonShortCut();

@@ -76,7 +76,11 @@ void ONScripter::searchSaveFile(SaveFileInfo& save_file_info, int no)
     SYSTEMTIME stm;
 
     WCHAR file_nameW[256];
+#if defined(UTF8_FILESYSTEM) || defined(WINCE)
+    MultiByteToWideChar(CP_UTF8, 0, file_name, -1, file_nameW, 256);
+#else
     MultiByteToWideChar(CP_ACP, 0, file_name, -1, file_nameW, 256);
+#endif
     handle = CreateFile(file_nameW, GENERIC_READ, 0, NULL,
                         OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (handle == INVALID_HANDLE_VALUE) {
