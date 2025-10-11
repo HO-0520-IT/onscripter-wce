@@ -3710,7 +3710,8 @@ int ONScripter::btndefCommand()
             parseTaggedString( &btndef_info );
             btndef_info.trans_mode = AnimationInfo::TRANS_COPY;
             setupAnimationInfo( &btndef_info );
-            SDL_SetAlpha( btndef_info.image_surface, DEFAULT_BLIT_FLAG, SDL_ALPHA_OPAQUE );
+            if ( btndef_info.image_surface )
+                SDL_SetAlpha( btndef_info.image_surface, DEFAULT_BLIT_FLAG, SDL_ALPHA_OPAQUE );
         }
     }
     
