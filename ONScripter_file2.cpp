@@ -287,7 +287,8 @@ int ONScripter::loadSaveFile2(int file_version)
                 ai->color[2 - j] = readChar();
             readChar(); // 0x00
 
-            int w = ai->max_width * ai->param / ai->max_param;
+            int w = 0;
+            if (ai->max_param != 0) w = ai->max_width * ai->param / ai->max_param;
             if (ai->max_width > 0 && w > 0) ai->orig_pos.w = w;
 
             ai->scalePosWH(screen_ratio1, screen_ratio2);

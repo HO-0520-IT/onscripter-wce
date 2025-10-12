@@ -1240,7 +1240,7 @@ int ONScripter::prnumCommand()
     const char *buf = script_h.readStr();
     readColor( &ai->color_list[0], buf );
 
-    char num_buf[7];
+    char num_buf[10]; // For 3 UTF-8 characters + null terminator
     script_h.getStringFromInteger( num_buf, ai->param, 3 );
     setStr( &ai->file_name, num_buf );
 
@@ -2355,7 +2355,7 @@ int ONScripter::gettagCommand()
 
     int n = script_h.enc.getBytes(buf[0]);
     unsigned short unicode1 = script_h.enc.getUTF16(buf);
-    unsigned short unicode2 = script_h.enc.getUTF16("¡Ú", Encoding::CODE_CP932);
+    unsigned short unicode2 = script_h.enc.getUTF16("ï¿½ï¿½", Encoding::CODE_CP932);
     if (buf[0] == '[')
         buf++;
     else if (zenkakko_flag && unicode1 == unicode2)
@@ -2380,7 +2380,7 @@ int ONScripter::gettagCommand()
             if (buf){
                 const char *buf_start = buf;
                 unicode1 = script_h.enc.getUTF16(buf);
-                unicode2 = script_h.enc.getUTF16("¡Û", Encoding::CODE_CP932);
+                unicode2 = script_h.enc.getUTF16("ï¿½ï¿½", Encoding::CODE_CP932);
                 while(*buf != '/' && *buf != 0 && *buf != ']' && 
                       (!zenkakko_flag || unicode1 != unicode2)){
                     buf += script_h.enc.getBytes(buf[0]);
@@ -2402,7 +2402,7 @@ int ONScripter::gettagCommand()
 
     n = script_h.enc.getBytes(pretext_buf[0]);
     unicode1 = script_h.enc.getUTF16(pretext_buf);
-    unicode2 = script_h.enc.getUTF16("¡Û", Encoding::CODE_CP932);
+    unicode2 = script_h.enc.getUTF16("ï¿½ï¿½", Encoding::CODE_CP932);
     if (pretext_buf[0] == ']')
         pretext_buf++;
     else if (zenkakko_flag && unicode1 == unicode2)
@@ -3710,7 +3710,8 @@ int ONScripter::btndefCommand()
             parseTaggedString( &btndef_info );
             btndef_info.trans_mode = AnimationInfo::TRANS_COPY;
             setupAnimationInfo( &btndef_info );
-            SDL_SetAlpha( btndef_info.image_surface, DEFAULT_BLIT_FLAG, SDL_ALPHA_OPAQUE );
+            if ( btndef_info.image_surface )
+                SDL_SetAlpha( btndef_info.image_surface, DEFAULT_BLIT_FLAG, SDL_ALPHA_OPAQUE );
         }
     }
     
