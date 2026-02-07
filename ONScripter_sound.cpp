@@ -84,6 +84,7 @@ int ONScripter::playSound(const char* filename, int format, bool loop_flag, int 
     }
 
     if (format & SOUND_MUSIC) {
+        ext_music_play_once_flag = false;
         music_info = Mix_LoadMUS_RW(SDL_RWFromMem(buffer, length));
         Mix_VolumeMusic(music_volume);
         Mix_HookMusicFinished(musicFinishCallback);
