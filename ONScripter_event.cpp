@@ -53,6 +53,8 @@ bool ext_music_play_once_flag = false;
  * **************************************** */
 extern "C" void musicFinishCallback()
 {
+    if (ext_music_play_once_flag) return;
+
     SDL_Event event;
     event.type = ONS_MUSIC_EVENT;
     SDL_PushEvent(&event);
