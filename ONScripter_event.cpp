@@ -497,6 +497,7 @@ bool ONScripter::mousePressEvent(SDL_MouseButtonEvent* event)
 
     current_button_state.x = event->x * screen_width / screen_device_width;
     current_button_state.y = event->y * screen_width / screen_device_width;
+    mouseOverCheck(current_button_state.x, current_button_state.y);
     current_button_state.down_flag = false;
     skip_mode &= ~SKIP_NORMAL;
 
