@@ -29,9 +29,11 @@ export PKG_CONFIG_LIBDIR="${PREFIX}/lib/pkgconfig"
 export PKG_CONFIG="pkg-config --static"
 export CFLAGS="-O2 -g0"
 export CXXFLAGS="-O2 -g0"
-export CPPFLAGS="-O2 -g0"
+# 依存は ${PREFIX} に入るため、configure の各種チェック（zlib 等）がそれを見つけられる
+# よう include / lib のパスを明示する（ツールチェーンの既定検索パスには含まれない）。
+export CPPFLAGS="-I${PREFIX}/include -O2 -g0"
 export CCASFLAGS="-O2 -g0"
-export LDFLAGS="-O2 -g0"
+export LDFLAGS="-L${PREFIX}/lib -O2 -g0"
 
 mkdir -p "${PREFIX}" "${SRC_DIR}"
 
