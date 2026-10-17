@@ -1,0 +1,15 @@
+# onscripter-wce（WinCE 版）のビルドに使う依存ライブラリと固定コミット。
+# 形式: <name> <url> <sha>
+# このファイルの内容が変わると GitHub Actions のキャッシュキーが変わり、依存が再ビルドされる。
+SDL-1.2-wce      https://github.com/HO-0520-IT/SDL-1.2-wce      69b001cb4a4c52fbb61f27de9c119117da77f340
+zlib-wce         https://github.com/HO-0520-IT/zlib-wce         99dccbb4bab385dbe8410a8731bb43de82bdc8ba
+jpeg-wce         https://github.com/HO-0520-IT/jpeg-wce         cc8b92286bb1a399386989afbda103fdb22a6803
+libpng-wce       https://github.com/HO-0520-IT/libpng-wce       9eac34b1bdd7702b25bde35d34cdd9bb43b72c8e
+libmad-wce       https://github.com/HO-0520-IT/libmad-wce       8555a64c5e7826546c10ae5996e8224900afc785
+ogg-wce          https://github.com/HO-0520-IT/ogg-wce          0288fadac3ac62d453409dfc83e9c4ab617d2472
+tremor-wce       https://github.com/HO-0520-IT/tremor-wce       a8d4ab1a4e8498011cd7f31943429e0164ad30b2
+bzip2-wce        https://github.com/HO-0520-IT/bzip2-wce        5324e0b969d1666294a5dbb8fab847d06134e868
+freetype-wce     https://github.com/HO-0520-IT/freetype-wce     adc7b85508f4415a2ea0855ed1a6811db06bd48e
+SDL_ttf-wce      https://github.com/HO-0520-IT/SDL_ttf-wce      b964669bb8607ad18ddcda1f74c35368e6383a42
+SDL_image-wce    https://github.com/HO-0520-IT/SDL_image-wce    5f62226d0f88d47d256f73f8fd075537816376da
+SDL_mixer-wce    https://github.com/HO-0520-IT/SDL_mixer-wce    a1ef27c530e34d85f3892862158e6b673b679660

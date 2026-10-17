@@ -1,0 +1,105 @@
+name: WinCE Build
+
+on:
+  push:
+    branches:
+      - cidev
+      - cimain
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: 'ビルドする ref（ブランチ / タグ / SHA）。空なら実行元の ref。'
+        required: false
+        default: ''
+      release_tag:
+        description: 'GitHub Release を作るタグ名。空なら Release は作らない。'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/enlyze/windows-ce-build-environment-arm:main-64dda99
+    defaults:
+      run:
+        shell: bash
+    env:
+      PREFIX: /opt/wce-prefix
+      INPUT_RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+
+    steps:
+      - name: ビルドツールのインストール
+        run: |
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
+            autoconf automake libtool pkg-config patch zip
+
+      - name: CI スクリプトのチェックアウト
+        uses: actions/checkout@v4
+
+      - name: ソースコードのチェックアウト
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_ref || github.sha }}
+          path: src
+
+      - name: バージョン文字列の決定
+        id: version
+        run: |
+          if [ -n "${INPUT_RELEASE_TAG}" ]; then
+            tag="${INPUT_RELEASE_TAG}"
+          elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            tag="${GITHUB_REF_NAME}"
+          else
+            tag="$(date -u +%Y%m%d)-$(git -C src rev-parse --short=7 HEAD)"
+          fi
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+          echo "version: ${tag}"
+
+      - name: 依存ライブラリのキャッシュ復元
+        id: deps-cache
+        uses: actions/cache@v4
+        with:
+          path: /opt/wce-prefix
+          # 依存を更新したら deps.lock が変わり、自動で再ビルドされる
+          key: wince-deps-v1-main-64dda99-${{ hashFiles('.github/ci/deps.lock') }}
+
+      - name: 依存ライブラリのビルド
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        run: bash .github/ci/build-deps.sh
+
+      - name: onscripter のビルド（4解像度）
+        env:
+          STEP_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          for pair in "VGA:640" "VGA-wide:800" "HVGA:424" "HVGA-wide:480"; do
+            name="${pair%%:*}"
+            width="${pair##*:}"
+            echo "== ${name} (PDA_WIDTH=${width})"
+            make -C src -f Makefile.WinCE clean >/dev/null 2>&1 || true
+            make -C src -f Makefile.WinCE -j"$(nproc)" PREF="${PREFIX}" PDA_WIDTH="${width}"
+            zip -j "onscripter-wince-${STEP_TAG}-${name}.zip" src/onscripter.exe
+          done
+          ls -l onscripter-wince-*.zip
+
+      - name: 成果物のアップロード
+        uses: actions/upload-artifact@v4
+        with:
+          name: onscripter-wince-${{ steps.version.outputs.tag }}
+          path: onscripter-wince-*.zip
+          if-no-files-found: error
+
+      - name: GitHub Release の作成
+        if: github.ref_type == 'tag' || github.event.inputs.release_tag != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          files: onscripter-wince-*.zip
