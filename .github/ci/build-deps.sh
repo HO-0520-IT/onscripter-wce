@@ -51,6 +51,11 @@ while read -r name url sha; do
   fi
 done < "${LOCK_FILE}"
 
+# git checkout 直後はファイルの mtime が揃わないため、make が configure や Makefile を
+# 自動再生成してしまうことがある（configure 後の sed 修正が消える等）。
+# 全ファイルの mtime を揃えて不要な再生成を防ぐ。
+find "${SRC_DIR}" -exec touch -t 200001010000.00 {} +
+
 CFG="--prefix=${PREFIX} --host=arm-mingw32ce"
 
 ##############################################################################
