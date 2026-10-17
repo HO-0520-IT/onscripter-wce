@@ -66,12 +66,18 @@ make -j"$(nproc)"
 make install
 
 # --- zlib ---
+# 本来は configure → makefile.patch → make だが、configure が環境変数の CFLAGS を
+# 取り込むためパッチの context が一致しないことがある。必要なオプションを直接
+# 指定して libz.a のみをビルド・install する（アプリは static link のみ）。
 echo "== zlib"
 cd "${SRC_DIR}/zlib-wce"
 ./configure --prefix="${PREFIX}"
-patch -p1 < makefile.patch
-make
-make install
+make -j"$(nproc)" libz.a \
+  CC=arm-mingw32ce-gcc AR=arm-mingw32ce-ar RANLIB=arm-mingw32ce-ranlib \
+  CFLAGS="-O3 -D_LARGEFILE64_SOURCE=1 -DNO_STRERROR -DNO_ERRNO_H -D_WIN32_WCE"
+mkdir -p "${PREFIX}/lib" "${PREFIX}/include"
+cp libz.a "${PREFIX}/lib/"
+cp zlib.h zconf.h "${PREFIX}/include/"
 
 # --- jpeg ---
 echo "== jpeg"
@@ -88,16 +94,20 @@ make -j"$(nproc)"
 make install
 
 # --- libmad ---
+# makefile.patch は生成 Makefile の CFLAGS 行に依存して失敗することがある。
+# パッチの実体は「GCC 9 で削除された -fforce-mem を外す」ことなので sed で行う。
 echo "== libmad"
 cd "${SRC_DIR}/libmad-wce"
 ./configure ${CFG} --disable-shared
-patch -p1 < makefile.patch
+sed -i 's/ -fforce-mem//' Makefile
 make -j"$(nproc)"
 make install
 
 # --- ogg ---
+# configure はリポジトリに含まれないため autogen.sh で生成する
 echo "== ogg"
 cd "${SRC_DIR}/ogg-wce"
+./autogen.sh
 ./configure ${CFG} --disable-shared
 make -j"$(nproc)"
 make install
