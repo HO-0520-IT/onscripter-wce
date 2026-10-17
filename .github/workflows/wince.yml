@@ -79,6 +79,9 @@ jobs:
           STEP_TAG: ${{ steps.version.outputs.tag }}
         run: |
           set -euo pipefail
+          # bzlib.h などはツールチェーンの既定検索パスに無いため GCC の環境変数で補う
+          export CPATH="${PREFIX}/include"
+          export LIBRARY_PATH="${PREFIX}/lib"
           for pair in "VGA:640" "VGA-wide:800" "HVGA:424" "HVGA-wide:480"; do
             name="${pair%%:*}"
             width="${pair##*:}"
